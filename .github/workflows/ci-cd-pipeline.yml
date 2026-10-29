@@ -19,4 +19,4 @@ jobs:
       - name: Rust formatting and compilation
         run: |
           cargo fmt --all -- --check
-          cargo test --locked
+          cargo test --offline
