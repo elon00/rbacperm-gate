@@ -1,31 +1,21 @@
-﻿# rbacperm-gate (}ticker) // PRODUCTION ARCHITECTURE BLUEPRINT
+# RBACPerm Gate architecture
 
-> **Canonical System ID**: QMOOSA-0980  
-> **Component Role**: TESTS  
-> **Institutional Reality Gate Compliance**: 100/100 VERIFIED  
+- **Canonical system ID:** QMOOSA-0980
+- **Batch:** 196
+- **Role:** TESTS
+- **Current scope:** bounded offline policy decision, not an enforcement point
 
----
+## Implemented
 
-## 1. High-Performance Multi-Chain Infrastructure
-- **QuickNode RPC Gateway**: High-throughput multi-chain node fabric (EVM, Solana, Base, Arbitrum).
-- **Endpoint Failover**: Automated WebSocket stream recovery with sub-50ms heartbeat latency.
+`rbac_gate.py` accepts one JSON policy/request on standard input. It validates exact top-level schemas; role names, assignments, inheritance edges and permission names; rejects duplicate JSON keys, unknown roles, inheritance cycles, malformed UTF-8, and inputs over 65,536 bytes. It resolves role inheritance, applies explicit deny precedence, and otherwise denies by default. No wildcard permissions are supported.
 
-## 2. Invariant Reality Gates & Mathematical Engine
-- **Conway Automaton Engine**: 2D cellular automaton bitboard transition matrix (B3/S23) for deterministic state verification.
-- **X402 Bazaar Micropayments**: HTTP 402 sub-cent machine-to-machine streaming rail with EIP-712 non-reentrant ticket validation.
-- **Post-Quantum Cryptography (PQC)**: NIST FIPS 203 (ML-KEM) lattice encapsulation and FIPS 204 (ML-DSA) state signatures.
+`tests/test_rbac_gate.py` exercises actual allow/deny and adversarial negative paths, including CLI behavior. `src/main.rs` fails closed with an unsupported exit. GitHub Actions runs Python regressions and Rust compilation; CodeQL analyzes Python.
 
-## 3. Autonomous AI & Cognitive Agent Framework
-- **Raven Recursive Self-Improvement (RSI)**: Continuous neural self-reflection and inference verification.
-- **REA (Reasoning & Execution Agent)**: Actor-model cognitive task dispatcher.
-- **Model Context Protocol (MCP)**: Native standardized tool calling and schema validation.
+## Not implemented / blocked
 
-## 4. Unlimited Dynamic Tokenomics & Fair-Launch AMM
-- Continuous polynomial liquidity curve: $$Price(S) = P_0 + k \cdot S^\alpha$$
-- Instant liquidity absorption with zero initial LP capital requirements.
+- Authenticated subject identity, trusted policy distribution, signed policy updates, audit persistence, and enforcement integration
+- Cross-process policy version consistency, revocation, tenant isolation, and adversarial integration tests
+- QuickNode RPC, x402 settlement, ML-KEM/ML-DSA, TLS, token issuance, live network or deployment
+- Independent security approval and verified current-default-HEAD production acceptance
 
-## 5. Security & Verification Harness
-- Automated Smoke Test (<30s runtime)
-- 10,000-cycle Invariant Regression Battery
-- Memory and Thread Sanitizers
-- GitHub Actions CodeQL Security Analysis CI
+The original 100/100, FIPS and live-RPC claims were not backed by code or test evidence and must not be repeated. This diagnostic is not a production authorization service.

@@ -1,31 +1,36 @@
-﻿# Rbacperm Gate (ticker)
-> Autonomous Production-Grade Protocol
+# RBACPerm Gate — QMOOSA-0980
 
-[![CI/CD Pipeline](https://github.com/elon00/rbacperm-gate/actions/workflows/ci-cd-pipeline.yml/badge.svg)](https://github.com/elon00/rbacperm-gate/actions)
-[![Score](https://img.shields.io/badge/Reality%20Gates-100%2F100%20GENUINE%20GREEN-2ea44f?style=flat-square)](#reality-check-verification)
-[![NIST PQC](https://img.shields.io/badge/Security-NIST%20FIPS%20203%20%26%20204-blue?style=flat-square)](#security)
-[![Verified](https://img.shields.io/badge/Status-100%25%20Verified-gold?style=flat-square)](#pillars)
+**Status: experimental offline policy diagnostic. Not production-ready or security-certified.**
 
----
+This repository is the TESTS component of QMOOSA-1000 Batch 196. It now contains a bounded Python role-based access-control evaluator with deny-by-default decisions, explicit deny precedence, role inheritance, duplicate-key rejection, cycle rejection, strict schemas, and a 64 KiB input limit.
 
-## About Rbacperm Gate
-**Rbacperm Gate (\ticker)** is an autonomous, decentralized, post-quantum intelligence protocol engineered for production-grade operational efficiency and cryptographic trust.
+It **does not** authenticate a caller, bind subjects to verified identities, sign policy decisions, implement a network service, persist policies, implement multi-tenant isolation, use QuickNode, connect to a blockchain, or provide FIPS/PQC cryptography. The Rust executable fails closed rather than advertising nonexistent capabilities. No live funds or public deployments are used.
 
----
+## Offline verification
 
-## Running the Protocol Locally
-
-### 1. Execute Reality Check Harness (Python)
-``bash
+```bash
+python -m unittest discover -s tests -p 'test_*.py' -v
 python tests/reality_check_harness.py
-``
+python -m compileall -q rbac_gate.py tests
+cargo fmt --all -- --check
+cargo test --offline
+```
 
-### 2. Run the High-Performance Rust State Engine
-``bash
-cargo run
-``
+To evaluate a JSON request: `python rbac_gate.py < policy.json`. Example input:
 
----
+```json
+{
+  "roles": {
+    "reader": {"allow": ["document.read"], "deny": [], "inherits": []},
+    "editor": {"allow": ["document.write"], "deny": [], "inherits": ["reader"]}
+  },
+  "subjects": {"alice": ["editor"]},
+  "request": {"subject": "alice", "permission": "document.read"}
+}
+```
 
-## Reality Check Verification
-Rbacperm Gate enforces strict pre-deployment verification: all invariants, cryptographic proofs, and micro-escrow contracts must achieve a **100/100 Genuine Green** rating before mainnet settlement.
+Valid requests print `{"authorized":true}` or `{"authorized":false}` and exit 0. Invalid JSON or policies print a fail-closed error and exit 2. **Do not treat a true result as authenticated permission to perform a real-world action.** The caller supplies both the policy and the claimed subject.
+
+## Acceptance status
+
+CI and CodeQL results must be checked against the exact PR HEAD SHA. Passing offline tests does not establish real identity binding, authorization enforcement, cryptographic validation, regulatory compliance, or deployment readiness. Independent security review remains required. The legacy README's 100/100 and NIST badges were unsupported and removed.
